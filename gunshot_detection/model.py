@@ -1,15 +1,17 @@
-import torch.nn as nn
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+import joblib
 
-class GunshotCNN(nn.Module):
-    def __init__(self):
-        super(GunshotCNN, self).__init__()
-        self.net = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3), nn.ReLU(), nn.MaxPool2d(2),
-            nn.Conv2d(16, 32, kernel_size=3), nn.ReLU(), nn.MaxPool2d(2),
-            nn.Flatten(),
-            nn.Linear(32*13*13, 64), nn.ReLU(),
-            nn.Linear(64, 2)
-        )
+def get_model(model_type='svm'):
+    if model_type == 'svm':
+        return SVC(kernel='rbf', probability=True)
+    elif model_type == 'rf':
+        return RandomForestClassifier(n_estimators=100)
+    else:
+        raise ValueError("Unknown model_type")
 
-    def forward(self, x):
-        return self.net(x)
+def save_model(model, filename):
+    joblib.dump(model, filename)
+
+def load_model(filename):
+    return joblib.load(filename)
