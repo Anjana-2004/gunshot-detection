@@ -1,10 +1,12 @@
 import librosa
 import numpy as np
-import torch
 
-def extract_mfcc(file_path):
-    y, sr = librosa.load(file_path, sr=22050)
-    mfcc = librosa.feature.mfcc(y, sr=sr, n_mfcc=40)
-    mfcc = (mfcc - np.mean(mfcc)) / np.std(mfcc)
-    mfcc = mfcc[np.newaxis, np.newaxis, :, :40]
-    return torch.tensor(mfcc, dtype=torch.float32)
+def read_audio(path, sr=16000, duration=2.5):
+    y, _ = librosa.load(path, sr=sr, duration=duration)
+    return y
+
+def batch_extract_features(file_list, feature_fn):
+    feats = []
+    for f in file_list:
+        feats.append(feature_fn(f))
+    return np.stack(feats)
