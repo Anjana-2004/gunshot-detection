@@ -1,42 +1,37 @@
 import os
-import pandas as pd
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from model import GunshotCNN
-from utils import extract_mfcc
+import librosa
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from model import get_model, save_model
 
-# Load data
-data_dir = "data/UrbanSound8K/audio"
-meta_file = "data/UrbanSound8K/metadata/UrbanSound8K.csv"
+def extract_features(path, n_mfcc=20):
+    y, sr = librosa.load(path, sr=16000, duration=2.5)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc)
+    chroma = librosa.feature.chroma_stft(y=y, sr=sr)
+    spec_contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
+    return np.concatenate([np.mean(mfcc,axis=1), np.mean(chroma,axis=1), np.mean(spec_contrast,axis=1)])
 
-meta = pd.read_csv(meta_file)
-meta = meta[meta["class"].isin(["gun_shot", "dog_bark"])]
-X, y = [], []
+def load_dataset(data_root):
+    # Expects directories data_root/gunshot and data_root/other
+    files, labels = [], []
+    for label in ['gunshot', 'other']:
+        folder = os.path.join(data_root, label)
+        for fname in os.listdir(folder):
+            if fname.endswith('.wav'):
+                files.append(os.path.join(folder, fname))
+                labels.append(1 if label == 'gunshot' else 0)
+    X = [extract_features(f) for f in files]
+    return np.stack(X), np.array(labels)
 
-label_map = {"gun_shot": 1, "dog_bark": 0}
-for _, row in meta.iterrows():
-    file_path = os.path.join(data_dir, f"fold{row.fold}", row.slice_file_name)
-    try:
-        feat = extract_mfcc(file_path)
-        X.append(feat)
-        y.append(label_map[row["class"]])
-    except:
-        continue
+def main():
+    X, y = load_dataset('data/UrbanSound8K')
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y)
+    model = get_model('svm')
+    model.fit(X_tr, y_tr)
+    y_pred = model.predict(X_te)
+    print(classification_report(y_te, y_pred))
+    save_model(model, 'gunshot_model.pkl')
 
-X = torch.cat(X)
-y = torch.tensor(y)
-
-model = GunshotCNN()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-criterion = nn.CrossEntropyLoss()
-
-for epoch in range(5):
-    optimizer.zero_grad()
-    output = model(X)
-    loss = criterion(output, y)
-    loss.backward()
-    optimizer.step()
-    print(f"Epoch {epoch+1}, Loss: {loss.item()}")
-
-torch.save(model.state_dict(), "gunshot_cnn.pth")
+if __name__ == '__main__':
+    main()
