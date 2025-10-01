@@ -1,181 +1,128 @@
-# 🔫 Gunshot Detection + Direction of Arrival (DoA) Prediction
 
-This project focuses on **detecting gunshot sounds from audio files** and predicting the **Direction of Arrival (DoA)**. It uses a **Convolutional Neural Network (CNN)** trained on the UrbanSound8K dataset. The project can be deployed **locally** or via **Docker** for easy, flexible usage.
 
 ---
 
-## ✨ Project Overview
+````markdown
+# Gunshot Detection and Direction Estimation
 
-### 🔍 What This Project Does
-- 🎯 Detects gunshot sounds from audio clips.
-- 🔄 Predicts whether the given audio contains a gunshot or not.
-- 💻 Can be run both locally and in a Docker container.
-- 🌐 Optional web interface using Streamlit.
-- 🏗️ Supports model retraining with the UrbanSound8K dataset.
+This project demonstrates an end-to-end pipeline for **audio event detection** and **direction-of-arrival (DoA) estimation** using a combination of machine learning, deep learning, and signal processing techniques.  
 
-### ✅ Why This Is Useful
-- 🚨 Real-time gunshot detection for public safety systems.
-- 🧠 Integration into smart surveillance and monitoring applications.
-- 📦 Docker support enables easy portability across machines.
+The system is designed as a proof-of-concept for real-world applications such as **surveillance, safety monitoring, and intelligent IoT devices**.
 
 ---
 
-## 📂 Project Structure
-
-```text
-project_folder/
- ├── main.py                 # Entry point for local or Streamlit execution
- ├── requirements.txt        # Python dependencies
- ├── Dockerfile              # Docker setup
- ├── gunshot_cnn.pth         # Trained model file
- ├── simulated_stereo.wav    # Sample audio input
- ├── data/
- │     ├── UrbanSound8K/     # Dataset folder
- │     │     ├── audio/             # Audio clips
- │     │     └── metadata/UrbanSound8K.csv  # Dataset labels
- ├── gunshot_detection/      # Core package
- │     ├── __init__.py
- │     ├── model.py          # CNN architecture
- │     ├── predict.py        # Gunshot prediction logic
- │     ├── utils.py          # Feature extraction methods
- │     └── train.py          # Model training script
-```
+## Features
+- **Audio Feature Extraction**: MFCCs, chroma, and spectral contrast features.  
+- **Event Classification**: Supports SVM, Random Forest, and CNN models.  
+- **Direction Estimation**: Implements GCC-PHAT algorithm to estimate the angle of arrival using multiple microphones.  
+- **Acoustic Simulation**: Uses `pyroomacoustics` to simulate room environments and test DoA estimation accuracy.  
+- **Evaluation Metrics**: Provides precision, recall, F1-score for classification and MAE/RMSE for DoA error.  
 
 ---
 
-## 🚀 Local Deployment Guide
+## Project Structure
+- `model.py` – Model creation (SVM, RF, CNN) and persistence (save/load).  
+- `train.py` – Training pipeline with dataset loading and feature extraction.  
+- `predict.py` – Prediction script for new audio files.  
+- `utils.py` – Signal processing utilities (GCC-PHAT, DoA calculation).  
+- `doa_estimations.py` – Runs DoA estimation experiments.  
+- `simulate_with_pyroom.py` – Room simulation with virtual microphones and sound sources.  
+- `main.py` – Example script combining detection and localization.  
 
-### 🔧 Step 1: Set Up Python Environment
+---
 
-1. Install **Python 3.9** from [Python Official Website](https://www.python.org/downloads/release/python-390/).
-2. Create a virtual environment:
+## Installation
+Clone the repository and install dependencies:
+
 ```bash
-python -m venv venv
-```
-3. Activate the virtual environment:
-- **Windows:**
-```bash
-venv\Scripts\activate
-```
-- **Linux/Mac:**
-```bash
-source venv/bin/activate
-```
+git clone <your-repo-url>
+cd <your-repo-folder>
+pip install -r requirements.txt
+````
 
 ---
 
-### 🔧 Step 2: Install Python Packages
+## Requirements
 
-Make sure you have `requirements.txt` in your project folder. Run:
+Create a `requirements.txt` file with the following:
+
+```
+numpy
+scikit-learn
+tensorflow
+librosa
+pyroomacoustics
+matplotlib
+joblib
+```
+
+Install them with:
+
 ```bash
 pip install -r requirements.txt
 ```
-✅ This will install all required libraries like **PyTorch**, **Librosa**, and **Pandas**.
 
 ---
 
-### 🔧 Step 3: Run the Project
+## Usage
 
-- To run in terminal:
+### 1. Train a Model
+
+```bash
+python train.py
+```
+
+Trains the classifier and saves it as `gunshot_model.pkl`.
+
+### 2. Predict on an Audio File
+
+```bash
+python predict.py path/to/audio.wav
+```
+
+Outputs the predicted class and confidence score.
+
+### 3. Run DoA Estimation with Simulation
+
+```bash
+python doa_estimations.py
+```
+
+Simulates a room environment and estimates the source direction.
+
+### 4. Combined Example
+
 ```bash
 python main.py
 ```
-- To run in Streamlit (web interface):
-```bash
-streamlit run main.py
+
+Runs detection and DoA estimation end-to-end.
+
+---
+
+## Applications
+
+* **Public Safety**: Gunshot detection for urban surveillance.
+* **Smart Devices**: IoT-enabled sound monitoring systems.
+* **Research**: Acoustic event classification and localization.
+
+---
+
+## Future Work
+
+* Incorporating larger and more diverse datasets.
+* Improving robustness against background noise.
+* Deployment on embedded devices (TensorFlow Lite / ONNX Runtime).
+
+---
+
+## License
+
+This project is intended for **research and educational purposes**.
+Commercial or real-world deployment may require further validation and testing.
+
 ```
 
-You’re now ready to predict gunshots!
-
 ---
 
-## 🐳 Docker Deployment Guide
-
-### 🛠️ Step 1: Install Docker
-
-- Download from: [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- Make sure Docker Desktop is running properly.
-
-### 🛠️ Step 2: Verify Docker Installation
-
-In PowerShell:
-```bash
-docker --version
 ```
-If Docker version is displayed, installation is successful.
-
-### 🛠️ Step 3: Build Docker Image
-
-In your project folder:
-```bash
-docker build -t gunshot-detection .
-```
-This creates a Docker image named **gunshot-detection**.
-
-### 🛠️ Step 4: Run Docker Container
-
-- Terminal version:
-```bash
-docker run -it gunshot-detection
-```
-- Streamlit web app version:
-```bash
-docker run -it -p 8501:8501 gunshot-detection
-```
-Access the web app at 👉 **http://localhost:8501**
-
----
-
-## 🧠 Model Training (Optional)
-
-If you want to retrain the model:
-```bash
-python gunshot_detection/train.py
-```
-
-### 📊 Training Details
-- **Dataset:** UrbanSound8K (Gunshot class vs. Negative class)
-- **Feature Extraction:** MFCC (Mel-Frequency Cepstral Coefficients)
-- **Model:** Convolutional Neural Network (CNN)
-
-👉 The trained model will be saved as **gunshot_cnn.pth**.
-
----
-
-## ⚙️ Core Components Explained
-
-| File | Purpose |
-|------|---------|
-| `model.py` | CNN model structure used for gunshot detection |
-| `utils.py` | MFCC feature extraction from audio files |
-| `predict.py` | Loads the model and predicts gunshot presence |
-| `train.py` | Full training loop to build the model |
-| `main.py` | Main entry script for predictions |
-
----
-
-## 🎯 Key Features
-
-- 🔊 **Gunshot sound classification** using MFCC and CNN.
-- 🐳 **Docker-ready** setup for easy cross-platform deployment.
-- 🌐 **Streamlit web interface** for interactive predictions.
-- 🏗️ **Custom retraining** supported with UrbanSound8K.
-
----
-
-## ✅ System Requirements
-
-- Python 3.9 ✅
-- Docker (optional but recommended) 🐳
-- Required Python packages (listed in `requirements.txt`)
-
----
-
-## 🙌 Author
-
-**Anjana Satish**  
-*Gunshot Detection + DoA Prediction System*  
-
-Feel free to reach out for contributions or collaborations!
-
----
