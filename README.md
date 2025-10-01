@@ -2,49 +2,56 @@
 
 ---
 
-````markdown
 # Gunshot Detection and Direction Estimation
 
-This project demonstrates an end-to-end pipeline for **audio event detection** and **direction-of-arrival (DoA) estimation** using a combination of machine learning, deep learning, and signal processing techniques.  
-
-The system is designed as a proof-of-concept for real-world applications such as **surveillance, safety monitoring, and intelligent IoT devices**.
-
----
+This project implements a system for detecting gunshot sounds and estimating their direction using machine learning and signal processing.
 
 ## Features
-- **Audio Feature Extraction**: MFCCs, chroma, and spectral contrast features.  
-- **Event Classification**: Supports SVM, Random Forest, and CNN models.  
-- **Direction Estimation**: Implements GCC-PHAT algorithm to estimate the angle of arrival using multiple microphones.  
-- **Acoustic Simulation**: Uses `pyroomacoustics` to simulate room environments and test DoA estimation accuracy.  
-- **Evaluation Metrics**: Provides precision, recall, F1-score for classification and MAE/RMSE for DoA error.  
 
----
+* Extracts audio features (MFCC, chroma, spectral contrast)
+* Trains models (SVM, Random Forest, CNN) for gunshot classification
+* Estimates Direction of Arrival (DoA) using the GCC-PHAT algorithm
+* Includes room simulation with `pyroomacoustics` for testing
 
-## Project Structure
-- `model.py` – Model creation (SVM, RF, CNN) and persistence (save/load).  
-- `train.py` – Training pipeline with dataset loading and feature extraction.  
-- `predict.py` – Prediction script for new audio files.  
-- `utils.py` – Signal processing utilities (GCC-PHAT, DoA calculation).  
-- `doa_estimations.py` – Runs DoA estimation experiments.  
-- `simulate_with_pyroom.py` – Room simulation with virtual microphones and sound sources.  
-- `main.py` – Example script combining detection and localization.  
+## Project Files
 
----
+* **model.py** – Model creation and saving/loading
+* **train.py** – Train classifier on dataset
+* **predict.py** – Run predictions on new audio
+* **utils.py** – GCC-PHAT and DoA utilities
+* **doa_estimations.py** – Estimate sound direction
+* **simulate_with_pyroom.py** – Room simulation for DoA
+* **main.py** – Example pipeline combining detection and direction
 
 ## Installation
-Clone the repository and install dependencies:
+
+Clone the repo and install dependencies:
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
 pip install -r requirements.txt
-````
+```
 
----
+## Usage
+
+**Train a model**
+
+```bash
+python train.py
+```
+
+**Predict on audio**
+
+```bash
+python predict.py path/to/file.wav
+```
+
+**Estimate DoA**
+
+```bash
+python doa_estimations.py
+```
 
 ## Requirements
-
-Create a `requirements.txt` file with the following:
 
 ```
 numpy
@@ -56,73 +63,12 @@ matplotlib
 joblib
 ```
 
-Install them with:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Usage
-
-### 1. Train a Model
-
-```bash
-python train.py
-```
-
-Trains the classifier and saves it as `gunshot_model.pkl`.
-
-### 2. Predict on an Audio File
-
-```bash
-python predict.py path/to/audio.wav
-```
-
-Outputs the predicted class and confidence score.
-
-### 3. Run DoA Estimation with Simulation
-
-```bash
-python doa_estimations.py
-```
-
-Simulates a room environment and estimates the source direction.
-
-### 4. Combined Example
-
-```bash
-python main.py
-```
-
-Runs detection and DoA estimation end-to-end.
-
----
-
 ## Applications
 
-* **Public Safety**: Gunshot detection for urban surveillance.
-* **Smart Devices**: IoT-enabled sound monitoring systems.
-* **Research**: Acoustic event classification and localization.
+* Public safety and surveillance
+* IoT sound monitoring devices
+* Research on acoustic event detection
 
 ---
 
-## Future Work
 
-* Incorporating larger and more diverse datasets.
-* Improving robustness against background noise.
-* Deployment on embedded devices (TensorFlow Lite / ONNX Runtime).
-
----
-
-## License
-
-This project is intended for **research and educational purposes**.
-Commercial or real-world deployment may require further validation and testing.
-
-```
-
----
-
-```
